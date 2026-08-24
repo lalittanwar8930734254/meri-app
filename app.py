@@ -1,8 +1,14 @@
 from flask import Flask, request, redirect, session
+from flask_socketio import SocketIO, emit
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
+socketio = SocketIO(app)
+
+@socketio.on("send_message")
+def handle_message(data):
+    emit("new_message", data, broadcast=True)
 app.secret_key = "meri-app-secret-key"
 
 def db():
@@ -316,4 +322,4 @@ def logout():
     session.clear()
     return redirect("/")
 
-app.run(host="0.0.0.0", port=5000)
+socketio.run(app, host="0.0.0.0", port=5000)
